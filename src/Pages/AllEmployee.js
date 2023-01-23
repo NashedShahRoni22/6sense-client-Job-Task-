@@ -1,18 +1,20 @@
 import React from "react";
-// import { useLoaderData } from "react-router-dom";
-import { AiFillInfoCircle, AiOutlineCloseCircle, AiFillDelete } from "react-icons/ai";
+import {
+  AiFillInfoCircle,
+  AiOutlineCloseCircle,
+  AiFillDelete,
+} from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 
 const AllEmployee = () => {
-//   const employees = useLoaderData();
-const { data:employees, refetch } = useQuery({
-    queryKey: ['repoData'],
+  //react query to fetch data
+  const { data: employees, refetch } = useQuery({
+    queryKey: ["repoData"],
     queryFn: () =>
-      fetch('http://localhost:5000/employee').then(
-        (res) => res.json(),
-      ),
-  })
+      fetch("http://localhost:5000/employee").then((res) => res.json()),
+  });
+  //delete an employee
   const handleDelete = (ed) => {
     const sure = window.confirm(`Do want to delete ${ed.firstName}?`);
     if (sure) {
@@ -27,6 +29,34 @@ const { data:employees, refetch } = useQuery({
           }
         });
     }
+  };
+  //block an employee
+  const handleBlock = (ed) => {
+    fetch(`http://localhost:5000/blockEmployee/${ed._id}`, {
+      method: "PUT",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.modifiedCount > 0) {
+          toast.success(`${ed.firstName} blocked!`);
+          refetch();
+        }
+      });
+  };
+  //unblock an employee
+  const handleUnBlock = (ed) => {
+    fetch(`http://localhost:5000/unblockEmployee/${ed._id}`, {
+      method: "PUT",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.modifiedCount > 0) {
+          toast.success(`${ed.firstName} unblocked!`);
+          refetch();
+        }
+      });
   };
   return (
     <div className="container mx-auto">
@@ -46,22 +76,39 @@ const { data:employees, refetch } = useQuery({
           <tbody>
             {employees?.map((ed, i) => (
               <tr key={ed._id}>
-                <th className="text-blue-500">{i+1}</th>
+                <th className="text-blue-500">{i + 1}</th>
                 <td>{ed.firstName}</td>
                 <td>{ed.email}</td>
                 <td className="flex gap-4">
-                    <button className="shadow-xl flex items-center gap-2 border rounded-lg p-2">
-                        <AiFillInfoCircle className="text-3xl text-green-500"/>
-                        <span className="font-semibold">Info</span>
+                  <button className="shadow-xl flex items-center gap-2 border rounded-lg p-2">
+                    <AiFillInfoCircle className="text-3xl text-green-500" />
+                    <span className="font-semibold">Details</span>
+                  </button>
+                  {ed.isBlock ? (
+                    <button
+                      onClick={() => handleUnBlock(ed)}
+                      className="shadow-xl flex items-center gap-2 border rounded-lg p-2"
+                    >
+                      <AiOutlineCloseCircle className="text-3xl text-blue-500" />
+                      <span className="font-semibold">Unblock</span>
                     </button>
-                    <button className="shadow-xl flex items-center gap-2 border rounded-lg p-2">
-                        <AiOutlineCloseCircle className="text-3xl text-blue-500"/>
-                        <span className="font-semibold">Block</span>
+                  ) : (
+                    <button
+                      onClick={() => handleBlock(ed)}
+                      className="shadow-xl flex items-center gap-2 border rounded-lg p-2"
+                    >
+                      <AiOutlineCloseCircle className="text-3xl text-red-500" />
+                      <span className="font-semibold">Block</span>
                     </button>
-                    <button className="shadow-xl flex items-center gap-2 border rounded-lg p-2" onClick={()=> handleDelete(ed)}>
-                        <AiFillDelete className="text-3xl text-red-500"/>
-                        <span className="font-semibold">Delete</span>
-                    </button>
+                  )}
+
+                  <button
+                    className="shadow-xl flex items-center gap-2 border rounded-lg p-2"
+                    onClick={() => handleDelete(ed)}
+                  >
+                    <AiFillDelete className="text-3xl text-red-500" />
+                    <span className="font-semibold">Delete</span>
+                  </button>
                 </td>
               </tr>
             ))}
