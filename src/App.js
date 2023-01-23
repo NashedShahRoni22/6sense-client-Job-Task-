@@ -16,6 +16,7 @@ function App() {
         {
           path: "/allEmployee",
           element: <AllEmployee/>,
+          loader: ()=> fetch('http://localhost:5000/employee')
         },
       ],
     },
