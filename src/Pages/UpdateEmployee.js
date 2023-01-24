@@ -1,3 +1,4 @@
+import axios from "axios";
 import React from "react";
 import { toast } from "react-hot-toast";
 import { useLoaderData, useNavigate } from "react-router-dom";
@@ -13,21 +14,22 @@ const UpdateEmployee = () => {
     const firstName = form.firstName.value;
     const lastName = form.lastName.value;
     const phoneNumber = form.phoneNumber.value;
-    const ud = { firstName, lastName, phoneNumber };
-    fetch(`http://localhost:5000/updateEmployee/${data._id}`, {
-      method: "PUT",
-      headers: {
-        "content-type": "application/json",
+    axios({
+      method: "put",
+      url: `http://localhost:5000/updateEmployee/${data._id}`,
+      data: {
+        firstName,
+        lastName,
+        phoneNumber,
       },
-      body: JSON.stringify(ud),
+    }).then(res => {
+      if(res.data.acknowledged){
+        toast.success("Employee Updated!");
+        navigate("/allEmployee");
+      };
+    }).catch(e =>{
+      console.log(e);
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.modifiedCount > 0) {
-          toast.success(`${data.firstName} Updated successfully!`);
-          navigate("/allEmployee");
-        }
-      });
   };
   return (
     <div className="container mx-auto">

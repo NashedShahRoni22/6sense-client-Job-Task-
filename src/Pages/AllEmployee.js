@@ -6,6 +6,7 @@ import {
 } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { Link } from "react-router-dom";
 
 const AllEmployee = () => {
@@ -17,49 +18,44 @@ const AllEmployee = () => {
     queryFn: () =>
       fetch("http://localhost:5000/employee").then((res) => res.json()),
   });
+
   //delete an employee
   const handleDelete = (ed) => {
     const sure = window.confirm(`Do want to delete ${ed.firstName}?`);
     if (sure) {
-      fetch(`http://localhost:5000/employee/${ed._id}`, {
-        method: "DELETE",
+      axios.delete(`http://localhost:5000/employee/${ed._id}`).then(res => {
+        if(res.data.acknowledged){
+          toast.success("Employee Deleted!");
+          refetch();
+        };
+      }).catch(e =>{
+        console.log(e);
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.deletedCount > 0) {
-            toast.error(`${ed.firstName} deleted successfully!`);
-            refetch();
-          }
-        });
     }
   };
+  
   //block an employee
   const handleBlock = (ed) => {
-    fetch(`http://localhost:5000/blockEmployee/${ed._id}`, {
-      method: "PUT",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        if (data.modifiedCount > 0) {
-          toast.success(`${ed.firstName} blocked!`);
+    axios.put(`http://localhost:5000/blockEmployee/${ed._id}`).then(res => {
+        if(res.data.acknowledged){
+          toast.success("Employee Blocked!");
           refetch();
-        }
-      });
+        };
+      }).catch(e =>{
+        console.log(e);
+      })
   };
+  
   //unblock an employee
   const handleUnBlock = (ed) => {
-    fetch(`http://localhost:5000/unblockEmployee/${ed._id}`, {
-      method: "PUT",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        if (data.modifiedCount > 0) {
-          toast.success(`${ed.firstName} unblocked!`);
+    axios.put(`http://localhost:5000/unblockEmployee/${ed._id}`).then(res => {
+        if(res.data.acknowledged){
+          toast.success("Employee Un Blocked!");
           refetch();
-        }
-      });
+        };
+      }).catch(e =>{
+        console.log(e);
+      })
   };
   return (
     <div className="container mx-auto">
@@ -122,7 +118,7 @@ const AllEmployee = () => {
           </tbody>
         </table>
 
-        {/* Employee Detailsb */}
+        {/* Employee Details Box */}
         <input type="checkbox" id="my-modal" className="modal-toggle" />
         <div className="modal">
           <div className="modal-box">
@@ -137,7 +133,7 @@ const AllEmployee = () => {
             <div className="modal-action">
               <Link to={`/allEmployee/${details._id}`} className="btn btn-sm btn-primary">Update</Link>
               <label htmlFor="my-modal" className="btn btn-sm btn-error">
-                x
+                Close
               </label>
             </div>
           </div>

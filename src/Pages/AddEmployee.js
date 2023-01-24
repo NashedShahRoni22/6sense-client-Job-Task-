@@ -1,7 +1,9 @@
 import React from "react";
+import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const AddEmployee = () => {
+  //Add an employee
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -9,29 +11,23 @@ const AddEmployee = () => {
     const lastName = form.lName.value;
     const email = form.email.value;
     const phoneNumber = form.pNumber.value;
-    console.log(firstName, lastName, email, phoneNumber);
-
-    const employeeData = {
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-    };
-    fetch("http://localhost:5000/employee", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
+    axios({
+      method: "post",
+      url: "http://localhost:5000/employee",
+      data: {
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
       },
-      body: JSON.stringify(employeeData),
+    }).then(res => {
+      if(res.data.acknowledged){
+        toast.success("Employee Added!");
+        form.reset();
+      };
+    }).catch(e =>{
+      console.log(e);
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.acknowledged) {
-          console.log("Added");
-          form.reset();
-            toast.success("New Employee Addded!");
-        }
-      });
   };
   return (
     <div className="hero min-h-screen bg-base-200">
