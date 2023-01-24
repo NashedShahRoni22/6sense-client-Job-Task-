@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   AiFillInfoCircle,
   AiOutlineCloseCircle,
@@ -6,8 +6,11 @@ import {
 } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
 const AllEmployee = () => {
+  //employee details
+  const [details, setDetails] = useState("");
   //react query to fetch data
   const { data: employees, refetch } = useQuery({
     queryKey: ["repoData"],
@@ -80,10 +83,14 @@ const AllEmployee = () => {
                 <td>{ed.firstName}</td>
                 <td>{ed.email}</td>
                 <td className="flex gap-4">
-                  <button className="shadow-xl flex items-center gap-2 border rounded-lg p-2">
+                  <label
+                    onClick={() => setDetails(ed)}
+                    htmlFor="my-modal"
+                    className="cursor-pointer shadow-xl flex items-center gap-2 border rounded-lg p-2"
+                  >
                     <AiFillInfoCircle className="text-3xl text-green-500" />
                     <span className="font-semibold">Details</span>
-                  </button>
+                  </label>
                   {ed.isBlock ? (
                     <button
                       onClick={() => handleUnBlock(ed)}
@@ -114,6 +121,27 @@ const AllEmployee = () => {
             ))}
           </tbody>
         </table>
+
+        {/* Employee Detailsb */}
+        <input type="checkbox" id="my-modal" className="modal-toggle" />
+        <div className="modal">
+          <div className="modal-box">
+            <h1 className="text-xl font-bold text-blue-500">
+              Employee Details
+            </h1>
+            <p className="py-4 font-semibold">
+              Name: {details.firstName} {details.lastName} <br />
+              Email: {details.email} <br />
+              Phone Number: {details.phoneNumber}
+            </p>
+            <div className="modal-action">
+              <Link to={`/allEmployee/${details._id}`} className="btn btn-sm btn-primary">Update</Link>
+              <label htmlFor="my-modal" className="btn btn-sm btn-error">
+                x
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
